@@ -17,10 +17,10 @@ COPY . .
 
 # Make port 8501 available to the world outside this container
 # This is the default port Streamlit runs on
-EXPOSE 8501
+EXPOSE 8080
 
 # Define environment variable for the port (Cloud Run sets this)
-ENV PORT 8501
+ENV PORT 8080
 
 # Run app.py when the container launches
 # Use environment variable $PORT for compatibility with Cloud Run
