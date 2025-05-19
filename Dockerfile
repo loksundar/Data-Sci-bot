@@ -1,18 +1,28 @@
-FROM python:3.7
 
-## App engine stuff
-# Expose port you want your app on
-EXPOSE 8080
+# Use an official Python runtime as a parent image
+FROM python:3.9-slim
 
-# Upgrade pip 
-RUN pip install -U pip
+# Set the working directory in the container
+WORKDIR /app
 
-COPY requirements.txt app/requirements.txt
-RUN pip install -r app/requirements.txt
+# Copy the requirements file into the container at /app
+COPY requirements.txt .
 
-# Create a new directory for app (keep it in its own directory)
-COPY . /app
-WORKDIR app
+# Install any needed packages specified in requirements.txt
+# Use --no-cache-dir to reduce image size
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Run
-ENTRYPOINT ["streamlit", "run", "app.py", "--server.port=8080", "--server.address=0.0.0.0"]
+# Copy the rest of the application code into the container at /app
+COPY . .
+
+# Make port 8501 available to the world outside this container
+# This is the default port Streamlit runs on
+EXPOSE 8501
+
+# Define environment variable for the port (Cloud Run sets this)
+ENV PORT 8501
+
+# Run app.py when the container launches
+# Use environment variable $PORT for compatibility with Cloud Run
+# --server.enableCORS false and --server.enableXsrfProtection false can help with some proxy/embedding scenarios
+CMD ["streamlit", "run", "app.py", "--server.port", "$PORT", "--server.address", "0.0.0.0", "--server.enableCORS", "false", "--server.enableXsrfProtection", "false"]
